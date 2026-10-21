@@ -368,12 +368,13 @@ sesh connect $(sesh list | fzf)
 bind-key "T" run-shell "sesh connect \"$(
   sesh list --icons | fzf-tmux -p 80%,70% \
     --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
-    --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+    --header '  ^a all ^t tmux ^g configs ^x zoxide ^s ssh ^d tmux kill ^f find' \
     --bind 'tab:down,btab:up' \
     --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
     --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
     --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
     --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+    --bind 'ctrl-s:change-prompt(SSH  )+reload(sesh list -s --icons)' \
     --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
     --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
     --preview-window 'right:55%' \
@@ -794,6 +795,51 @@ regex = true
 > tmux 会话名称不能包含 `.` 或 `:`，空格会被转换为 `_`，
 > 因此 `replace` 中的这些字符会在最终名称中被规范化。
 
+### SSH 主机
+
+在 `~/.config/sesh/sesh.toml` 中添加要选择的机器：
+
+```toml
+[[ssh]]
+name = "dev-server"
+host = "dev"
+
+[[ssh]]
+name = "backup"
+host = "alice@backup.example.com"
+```
+
+`name` 是本地 tmux 会话名称，必须在 SSH 条目中唯一，且不能与配置的会话名称或别名冲突。
+名称不能包含点或冒号，例如可使用 `dev-server`。`host` 是 SSH 别名或目标地址。
+端口、密钥文件和跳板机等 SSH 选项仍在 `~/.ssh/config` 中配置。
+例如，`host = "dev"` 会使用现有的 `Host dev` 配置。
+
+显式条目让您选择要显示的机器，无需导入 SSH 配置中的通配符规则或所有主机。
+Sesh 使用您安装的 `ssh` 命令连接。
+
+```sh
+sesh list                 # 包含 SSH 主机和其他来源
+sesh list -s --icons      # 仅显示 SSH 主机，长选项为 --ssh
+sesh connect dev-server   # 创建本地 tmux 会话并运行 ssh dev
+sesh preview dev-server   # 显示主机信息，已有会话则显示实时窗格
+```
+
+再次连接会复用同名 tmux 会话。SSH 条目不会向 zoxide 添加路径，也不会运行本地默认启动命令或创建默认窗口。
+与其他来源一样，`connect --command` 会替换新会话的启动命令。
+退出 SSH 后本地 shell 仍然保留；在其中运行 `ssh dev` 即可重连，或关闭 tmux 会话后再次选择该条目。
+列出主机或预览主机信息不会发起网络连接。
+
+现有的 fzf 命令 `sesh list --icons` 和 `sesh preview {}` 可直接使用这些条目。
+在 fzf 标题中添加 `^s ssh`，再添加以下绑定即可筛选 SSH 主机：
+
+```sh
+--bind 'ctrl-s:change-prompt(SSH  )+reload(sesh list -s --icons)'
+```
+
+在 `sort_order` 和 `[icons.ssh]` 中使用来源名称 `ssh`。
+`--hide-duplicates` 可在同名 tmux 会话已列出时隐藏 SSH 条目。
+如果启用了缓存，可用 `sesh list --no-cache` 立即查看配置更改。
+
 ### 排序
 
 如果您想更改显示的会话顺序，可以在 `sesh.toml` 文件中配置 `sort_order`
@@ -807,13 +853,13 @@ sort_order = [
 ]
 ```
 
-默认顺序是 `tmux`、`config`、`tmuxinator`，然后是 `zoxide`。
+默认顺序是 `tmux`、`config`、`tmuxinator`、`zoxide`，然后是 `ssh`。
 
 如果您只关心特定会话类型的顺序，可以省略它们。
 
 ```toml
 sort_order = [
-  "config", # 结果顺序：config, tmux, tmuxinator, zoxide
+  "config", # 结果顺序：config, tmux, tmuxinator, zoxide, ssh
 ]
 ```
 

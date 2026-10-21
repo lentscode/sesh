@@ -223,7 +223,8 @@
         "config": { "$ref": "#/definitions/sourceIcon" },
         "zoxide": { "$ref": "#/definitions/sourceIcon" },
         "tmuxinator": { "$ref": "#/definitions/sourceIcon" },
-        "tmux-pane": { "$ref": "#/definitions/sourceIcon" }
+        "tmux-pane": { "$ref": "#/definitions/sourceIcon" },
+        "ssh": { "$ref": "#/definitions/sourceIcon" }
       },
       "additionalProperties": false
     },
@@ -256,6 +257,27 @@
         }
       },
       "additionalProperties": false
+    },
+    "ssh": {
+      "type": "array",
+      "description": "SSH hosts to list and connect to in local tmux sessions. SSH options remain in ~/.ssh/config.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique local tmux session name, without dots, colons, control characters, or surrounding whitespace."
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Single SSH alias or destination such as dev or alice@dev.example.com."
+          }
+        },
+        "required": ["name", "host"],
+        "additionalProperties": false
+      }
     },
     "session": {
       "type": "array",

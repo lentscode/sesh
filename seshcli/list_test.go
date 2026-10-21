@@ -66,3 +66,13 @@ func TestListFormattingFlags(t *testing.T) {
 		}
 	})
 }
+
+func TestListSSHFlag(t *testing.T) {
+	for _, flag := range []string{"-s", "--ssh"} {
+		cmd := NewListCommand(nil)
+		require.NoError(t, cmd.Flags().Parse([]string{flag, "--icons"}))
+		ssh, err := cmd.Flags().GetBool("ssh")
+		require.NoError(t, err)
+		assert.True(t, ssh)
+	}
+}

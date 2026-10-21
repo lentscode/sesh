@@ -17,6 +17,7 @@ type (
 		Json           bool
 		Tmux           bool
 		Zoxide         bool
+		SSH            bool
 		Tmuxinator     bool
 		HideDuplicates bool
 		Panes          bool
@@ -41,6 +42,7 @@ var srcStrategies = map[string]srcStrategy{
 	"tmuxinator": listTmuxinator,
 	"zoxide":     listZoxide,
 	"tmux-pane":  listTmuxPanes,
+	"ssh":        listSSH,
 }
 
 func (l *RealLister) List(opts ListOptions) (model.SeshSessions, error) {

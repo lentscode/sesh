@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/joshmedeski/sesh/v2/icon"
@@ -110,6 +111,7 @@ func (c *RealConfigurator) resolveImports(config *model.Config, homeDir string) 
 		}
 
 		config.SessionConfigs = append(config.SessionConfigs, importConfig.SessionConfigs...)
+		config.SSHConfigs = append(config.SSHConfigs, importConfig.SSHConfigs...)
 		config.WindowConfigs = append(config.WindowConfigs, importConfig.WindowConfigs...)
 		config.WildcardConfigs = append(config.WildcardConfigs, importConfig.WildcardConfigs...)
 	}
@@ -190,6 +192,31 @@ func validateNameSubstitutions(config *model.Config) error {
 	return nil
 }
 
+// Validate after imports so duplicate entries in separate files are caught too.
+func validateSSH(config *model.Config) error {
+	seen := make(map[string]bool, len(config.SSHConfigs))
+	for _, entry := range config.SSHConfigs {
+		if strings.TrimSpace(entry.Name) == "" || entry.Name != strings.TrimSpace(entry.Name) ||
+			strings.ContainsAny(entry.Name, ".:") || strings.ContainsFunc(entry.Name, unicode.IsControl) {
+			return fmt.Errorf("invalid ssh name %q: use a non-empty tmux session name without dots, colons, control characters, or surrounding whitespace", entry.Name)
+		}
+		if seen[entry.Name] {
+			return fmt.Errorf("duplicate ssh name %q", entry.Name)
+		}
+		seen[entry.Name] = true
+		for _, session := range config.SessionConfigs {
+			if session.Name == entry.Name || strings.EqualFold(session.Alias, entry.Name) {
+				return fmt.Errorf("ssh name %q conflicts with a configured session name or alias", entry.Name)
+			}
+		}
+		if entry.Host == "" || strings.HasPrefix(entry.Host, "-") || strings.ContainsAny(entry.Host, "*?!") ||
+			strings.ContainsFunc(entry.Host, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) }) {
+			return fmt.Errorf("invalid ssh host %q: use a single SSH alias or destination, with options in ~/.ssh/config", entry.Host)
+		}
+	}
+	return nil
+}
+
 func (c *RealConfigurator) getConfigFileFromPath(configPath string) (model.Config, error) {
 	file, err := c.os.ReadFile(configPath)
 	if err != nil {
@@ -211,6 +238,9 @@ func (c *RealConfigurator) getConfigFileFromPath(configPath string) (model.Confi
 	}
 
 	c.applyDefaults(&config)
+	if err := validateSSH(&config); err != nil {
+		return config, err
+	}
 	if err := validateAliases(&config); err != nil {
 		return config, err
 	}
@@ -252,6 +282,9 @@ func (c *RealConfigurator) getConfigFileFromUserConfigDir() (model.Config, error
 	}
 
 	c.applyDefaults(&config)
+	if err := validateSSH(&config); err != nil {
+		return config, err
+	}
 	if err := validateAliases(&config); err != nil {
 		return config, err
 	}

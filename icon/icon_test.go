@@ -16,7 +16,7 @@ func TestSource(t *testing.T) {
 	glyphs, err := SourceGlyphs(nil)
 	require.NoError(t, err)
 
-	for _, src := range []string{"tmux", "config", "zoxide", "tmuxinator", "tmux-pane"} {
+	for _, src := range []string{"tmux", "config", "zoxide", "tmuxinator", "tmux-pane", "ssh"} {
 		icn, clr := glyphs.Source(src)
 		assert.NotEmpty(t, strings.TrimSpace(icn), "icon for %s should not be empty", src)
 		assert.NotEqual(t, "? ", icn, "icon for %s should not be fallback", src)
