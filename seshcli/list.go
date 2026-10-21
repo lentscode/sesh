@@ -31,6 +31,7 @@ func NewListCommand(base *BaseDeps) *cobra.Command {
 			jsonOutput, _ := cmd.Flags().GetBool("json")
 			tmux, _ := cmd.Flags().GetBool("tmux")
 			zoxide, _ := cmd.Flags().GetBool("zoxide")
+			ssh, _ := cmd.Flags().GetBool("ssh")
 			hideAttached, _ := cmd.Flags().GetBool("hide-attached")
 			icons, _ := cmd.Flags().GetBool("icons")
 			noColor, _ := cmd.Flags().GetBool("no-color")
@@ -58,6 +59,7 @@ func NewListCommand(base *BaseDeps) *cobra.Command {
 				Json:           jsonOutput,
 				Tmux:           tmux,
 				Zoxide:         zoxide,
+				SSH:            ssh,
 				Tmuxinator:     tmuxinator,
 				HideDuplicates: hideDuplicates,
 				Panes:          panes,
@@ -91,6 +93,7 @@ func NewListCommand(base *BaseDeps) *cobra.Command {
 	cmd.Flags().BoolP("json", "j", false, "output as json")
 	cmd.Flags().BoolP("tmux", "t", false, "show tmux sessions")
 	cmd.Flags().BoolP("zoxide", "z", false, "show zoxide results")
+	cmd.Flags().BoolP("ssh", "s", false, "show configured SSH hosts")
 	cmd.Flags().BoolP("hide-attached", "H", false, "don't show currently attached sessions")
 	cmd.Flags().BoolP("icons", "i", false, "show icons")
 	cmd.Flags().BoolP("no-color", "n", false, "show icons without color (requires --icons)")

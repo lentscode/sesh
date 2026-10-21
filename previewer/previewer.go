@@ -33,6 +33,7 @@ func NewPreviewer(
 ) Previewer {
 	strategies := []PreviewStrategy{
 		NewTmuxStrategy(lister, tmux),
+		NewSSHStrategy(config),
 		NewConfigStrategy(lister, shell),
 		NewDefaultConfigStrategy(lister, config, ls),
 		NewDirectoryStrategy(home, dir, ls),

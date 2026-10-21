@@ -39,6 +39,7 @@ var defaultGlyphs = Glyphs{
 	"zoxide":     {Icon: "", ColorCode: ansi.Cyan},
 	"tmuxinator": {Icon: "", ColorCode: ansi.Yellow},
 	"tmux-pane":  {Icon: "", ColorCode: ansi.Green},
+	"ssh":        {Icon: "󰣀", ColorCode: ansi.Magenta},
 }
 
 func SourceGlyphs(icons map[string]model.SourceIcon) (Glyphs, error) {
@@ -51,7 +52,7 @@ func SourceGlyphs(icons map[string]model.SourceIcon) (Glyphs, error) {
 	for src, override := range icons {
 		g, ok := glyphs[src]
 		if !ok {
-			errs = append(errs, fmt.Errorf("icons: unknown source %q (use tmux, config, zoxide, tmuxinator, or tmux-pane)", src))
+			errs = append(errs, fmt.Errorf("icons: unknown source %q (use tmux, config, zoxide, tmuxinator, tmux-pane, or ssh)", src))
 			continue
 		}
 		if override.Color != "" {

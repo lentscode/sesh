@@ -22,6 +22,7 @@ type dedupRule struct {
 var dedupRules = map[string]dedupRule{
 	"config":     {against: []string{"tmux"}, key: keyName},
 	"tmuxinator": {against: []string{"tmux"}, key: keyName},
+	"ssh":        {against: []string{"tmux"}, key: keyName},
 	// zoxide is not deduped against tmuxinator: tmuxinator entries do not
 	// carry a Path (only Name), so a path-keyed rule would never match.
 	// Revisit if tmuxinator's `root:` becomes available on SeshSession.
@@ -39,6 +40,7 @@ var sourceTier = map[string]int{
 	"tmux-pane":  0,
 	"config":     1,
 	"tmuxinator": 1,
+	"ssh":        1,
 	"zoxide":     2,
 }
 

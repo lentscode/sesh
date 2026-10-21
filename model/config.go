@@ -50,6 +50,7 @@ type (
 		DefaultSessionConfig    DefaultSessionConfig  `toml:"default_session"`
 		Blacklist               []string              `toml:"blacklist"`
 		SessionConfigs          []SessionConfig       `toml:"session"`
+		SSHConfigs              []SSHConfig           `toml:"ssh"`
 		SortOrder               SortOrder             `toml:"sort_order"`
 		WindowConfigs           []WindowConfig        `toml:"window"`
 		WildcardConfigs         []WildcardConfig      `toml:"wildcard"`
@@ -70,6 +71,14 @@ type (
 	SourceIcon struct {
 		Icon  string `toml:"icon"`
 		Color string `toml:"color"`
+	}
+
+	// SSHConfig names a local tmux session whose shell connects to Host.
+	// Host is passed to OpenSSH, which reads keys, ports and proxies from its
+	// own configuration. It is never treated as a local directory.
+	SSHConfig struct {
+		Name string `toml:"name"`
+		Host string `toml:"host"`
 	}
 
 	Evaluation struct {

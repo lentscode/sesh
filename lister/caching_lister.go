@@ -141,7 +141,7 @@ func (cl *CachingLister) applyFilters(sessions model.SeshSessions, opts ListOpti
 // sourceSet returns a set of allowed source names based on opts, or nil if
 // no source flags are set (meaning all sources are allowed).
 func sourceSet(opts ListOptions) map[string]bool {
-	if !opts.Tmux && !opts.Config && !opts.Zoxide && !opts.Tmuxinator && !opts.Panes {
+	if !opts.Tmux && !opts.Config && !opts.Zoxide && !opts.Tmuxinator && !opts.Panes && !opts.SSH {
 		return nil
 	}
 	m := make(map[string]bool)
@@ -159,6 +159,9 @@ func sourceSet(opts ListOptions) map[string]bool {
 	}
 	if opts.Panes {
 		m["tmux-pane"] = true
+	}
+	if opts.SSH {
+		m["ssh"] = true
 	}
 	return m
 }

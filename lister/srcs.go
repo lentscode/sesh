@@ -100,8 +100,11 @@ func srcs(opts ListOptions) []string {
 	if opts.Panes {
 		count++
 	}
+	if opts.SSH {
+		count++
+	}
 	if count == 0 {
-		return []string{"tmux", "config", "tmuxinator", "zoxide"}
+		return []string{"tmux", "config", "tmuxinator", "zoxide", "ssh"}
 	}
 	srcs := make([]string, 0, count)
 	if opts.Tmux {
@@ -118,6 +121,9 @@ func srcs(opts ListOptions) []string {
 	}
 	if opts.Panes {
 		srcs = append(srcs, "tmux-pane")
+	}
+	if opts.SSH {
+		srcs = append(srcs, "ssh")
 	}
 	return srcs
 }

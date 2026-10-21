@@ -24,6 +24,28 @@ func fakeSessions() model.SeshSessions {
 	}
 }
 
+func TestCachingLister_SSHSourceFilter(t *testing.T) {
+	fc := cache.NewFileCacheWithPath(filepath.Join(t.TempDir(), "sessions.gob"))
+	sessions := fakeSessions()
+	sessions.OrderedIndex = append(sessions.OrderedIndex, "ssh:dev")
+	sessions.Directory["ssh:dev"] = (model.SSHConfig{Name: "dev", Host: "dev-host"}).Session()
+	require.NoError(t, fc.Write(sessions))
+	cl := lister.NewCachingLister(lister.NewMockLister(t), fc)
+	for _, tt := range []struct {
+		opts lister.ListOptions
+		keys []string
+	}{
+		{lister.ListOptions{SSH: true}, []string{"ssh:dev"}},
+		{lister.ListOptions{Tmux: true}, []string{"tmux:main"}},
+		{lister.ListOptions{Tmux: true, SSH: true}, sessions.OrderedIndex},
+		{lister.ListOptions{}, sessions.OrderedIndex},
+	} {
+		got, err := cl.List(tt.opts)
+		require.NoError(t, err)
+		assert.Equal(t, tt.keys, got.OrderedIndex)
+	}
+}
+
 func updatedSessions() model.SeshSessions {
 	return model.SeshSessions{
 		OrderedIndex: []string{"tmux:main", "tmux:dev"},

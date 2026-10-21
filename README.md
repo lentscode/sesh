@@ -369,12 +369,13 @@ In order to integrate with tmux, you can add a binding to your tmux config (`tmu
 bind-key "T" run-shell "sesh connect \"$(
   sesh list --icons | fzf-tmux -p 80%,70% \
     --no-sort --ansi --border-label ' sesh ' --prompt '⚡  ' \
-    --header '  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find' \
+    --header '  ^a all ^t tmux ^g configs ^x zoxide ^s ssh ^d tmux kill ^f find' \
     --bind 'tab:down,btab:up' \
     --bind 'ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)' \
     --bind 'ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)' \
     --bind 'ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)' \
     --bind 'ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)' \
+    --bind 'ctrl-s:change-prompt(SSH  )+reload(sesh list -s --icons)' \
     --bind 'ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)' \
     --bind 'ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)' \
     --preview-window 'right:55%' \
@@ -803,6 +804,55 @@ regex = true
 > tmux session names can't contain `.` or `:`, and spaces are turned into `_`,
 > so those characters in `replace` are normalized in the final name.
 
+### SSH hosts
+
+Add the machines you want to select to `~/.config/sesh/sesh.toml`:
+
+```toml
+[[ssh]]
+name = "dev-server"
+host = "dev"
+
+[[ssh]]
+name = "backup"
+host = "alice@backup.example.com"
+```
+
+`name` is the local tmux session name. It must be unique among SSH entries and
+must not conflict with a configured session name or alias. Use a name without
+dots or colons, such as `dev-server`. `host` is an SSH alias or destination.
+Keep SSH options such as ports, identity files, and jump hosts in `~/.ssh/config`.
+For example, `host = "dev"` uses your existing `Host dev` configuration.
+
+Explicit entries let you choose which machines appear without importing wildcard
+rules or every host from your SSH configuration. Sesh delegates the connection
+to your installed `ssh` command.
+
+```sh
+sesh list                 # includes SSH hosts alongside other sources
+sesh list -s --icons      # only SSH hosts; --ssh is the long form
+sesh connect dev-server   # creates a local tmux session and runs ssh dev
+sesh preview dev-server   # host details, or the live pane when already running
+```
+
+Connecting again reuses the existing tmux session with that name. SSH entries
+do not add paths to zoxide and skip local default startup commands and windows.
+As with other sources, `connect --command` replaces the startup command for a
+new session. Ending SSH leaves the local shell open; run `ssh dev` there to
+reconnect, or close the tmux session before selecting the entry again.
+Listing and previewing host details do not open network connections.
+
+Your existing `sesh list --icons` and `sesh preview {}` fzf commands work with
+these entries. Add `^s ssh` to your fzf header and this binding for an SSH filter:
+
+```sh
+--bind 'ctrl-s:change-prompt(SSH  )+reload(sesh list -s --icons)'
+```
+
+The source name is `ssh` in `sort_order` and `[icons.ssh]`. Use `--hide-duplicates`
+to hide an SSH entry when its tmux session is already listed. If caching is
+enabled, use `sesh list --no-cache` to see configuration changes immediately.
+
 ### Sorting
 
 If you'd like to change the order of the sessions shown, you can configure `sort_order` in your `sesh.toml` file
@@ -816,13 +866,13 @@ sort_order = [
 ]
 ```
 
-The default order is `tmux`, `config`, `tmuxinator`, and then `zoxide`.
+The default order is `tmux`, `config`, `tmuxinator`, `zoxide`, and then `ssh`.
 
 You can omit session types if you only care about the order of specific ones.
 
 ```toml
 sort_order = [
-  "config", # resulting order: config, tmux, tmuxinator, zoxide
+  "config", # resulting order: config, tmux, tmuxinator, zoxide, ssh
 ]
 ```
 
