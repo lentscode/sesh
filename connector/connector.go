@@ -7,6 +7,7 @@ import (
 	"github.com/joshmedeski/sesh/v2/lister"
 	"github.com/joshmedeski/sesh/v2/model"
 	"github.com/joshmedeski/sesh/v2/namer"
+	"github.com/joshmedeski/sesh/v2/shell"
 	"github.com/joshmedeski/sesh/v2/startup"
 	"github.com/joshmedeski/sesh/v2/tmux"
 	"github.com/joshmedeski/sesh/v2/tmuxinator"
@@ -29,6 +30,7 @@ type RealConnector struct {
 	zoxide     zoxide.Zoxide
 	tmuxinator tmuxinator.Tmuxinator
 	focuser    focuser.Focuser
+	shell      shell.Shell
 }
 
 func NewConnector(
@@ -42,6 +44,7 @@ func NewConnector(
 	zoxide zoxide.Zoxide,
 	tmuxinator tmuxinator.Tmuxinator,
 	focuser focuser.Focuser,
+	shell shell.Shell,
 ) Connector {
 	return &RealConnector{
 		config,
@@ -54,5 +57,6 @@ func NewConnector(
 		zoxide,
 		tmuxinator,
 		focuser,
+		shell,
 	}
 }

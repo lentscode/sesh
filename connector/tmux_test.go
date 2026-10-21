@@ -40,6 +40,7 @@ func TestEstablishTmuxConnection(t *testing.T) {
 		mockZoxide,
 		mockTmuxinator,
 		nil,
+		nil,
 	}
 	mockTmux.On("AttachSession", mock.Anything).Return("attaching", nil)
 	mockZoxide.On("Add", mock.Anything).Return(nil)
@@ -88,7 +89,7 @@ func TestConnectToTmuxDetachedSwitchesClientAndFocuses(t *testing.T) {
 
 	c := NewConnector(
 		model.Config{Terminal: "wezterm"},
-		nil, nil, nil, nil, mStartup, mTmux, nil, nil, mFocuser,
+		nil, nil, nil, nil, mStartup, mTmux, nil, nil, mFocuser, nil,
 	).(*RealConnector)
 
 	conn := model.Connection{
@@ -107,7 +108,7 @@ func TestConnectToTmuxCommandTargetsSession(t *testing.T) {
 	mTmux.EXPECT().SwitchOrAttach("myapp", model.ConnectOpts{}).Return("switching", nil)
 
 	c := NewConnector(
-		model.Config{}, nil, nil, nil, nil, nil, mTmux, nil, nil, nil,
+		model.Config{}, nil, nil, nil, nil, nil, mTmux, nil, nil, nil, nil,
 	).(*RealConnector)
 
 	connection := model.Connection{
@@ -131,7 +132,7 @@ func TestConnectToTmuxDetachedWithNoClientStillFocuses(t *testing.T) {
 
 	c := NewConnector(
 		model.Config{Terminal: "wezterm"},
-		nil, nil, nil, nil, nil, mTmux, nil, nil, mFocuser,
+		nil, nil, nil, nil, nil, mTmux, nil, nil, mFocuser, nil,
 	).(*RealConnector)
 
 	conn := model.Connection{
@@ -156,7 +157,7 @@ func TestConnectToTmuxDetachedReportsUnreachableTmux(t *testing.T) {
 
 	c := NewConnector(
 		model.Config{Terminal: "wezterm"},
-		nil, nil, nil, nil, nil, mTmux, nil, nil, mFocuser,
+		nil, nil, nil, nil, nil, mTmux, nil, nil, mFocuser, nil,
 	).(*RealConnector)
 
 	conn := model.Connection{

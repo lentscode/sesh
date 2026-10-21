@@ -818,7 +818,7 @@ name = "backup"
 host = "alice@backup.example.com"
 ```
 
-`name` is the local tmux session name. It must be unique among SSH entries and
+`name` is the display name used to select the host. It must be unique among SSH entries and
 must not conflict with a configured session name or alias. Use a name without
 dots or colons, such as `dev-server`. `host` is an SSH alias or destination.
 Keep SSH options such as ports, identity files, and jump hosts in `~/.ssh/config`.
@@ -831,15 +831,15 @@ to your installed `ssh` command.
 ```sh
 sesh list                 # includes SSH hosts alongside other sources
 sesh list -s --icons      # only SSH hosts; --ssh is the long form
-sesh connect dev-server   # creates a local tmux session and runs ssh dev
+sesh connect dev-server   # runs ssh dev in the current terminal
 sesh preview dev-server   # host details, or the live pane when already running
 ```
 
-Connecting again reuses the existing tmux session with that name. SSH entries
-do not add paths to zoxide and skip local default startup commands and windows.
-As with other sources, `connect --command` replaces the startup command for a
-new session. Ending SSH leaves the local shell open; run `ssh dev` there to
-reconnect, or close the tmux session before selecting the entry again.
+Each connection starts SSH in the current terminal without creating or attaching
+to a local tmux session. Ending SSH returns to the terminal where you ran Sesh.
+SSH entries do not add paths to zoxide and skip local default startup commands
+and windows. The tmux options `connect --switch`, `--command`, and `--tmuxinator`
+do not affect SSH connections. SSH hosts cannot be used as tmux window targets.
 Listing and previewing host details do not open network connections.
 
 Your existing `sesh list --icons` and `sesh preview {}` fzf commands work with

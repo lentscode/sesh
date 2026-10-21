@@ -11,18 +11,16 @@ func sshStrategy(c *RealConnector, name string) (model.Connection, error) {
 		if config.Name != name {
 			continue
 		}
-		// Reuse an existing session, and never record its local working
-		// directory as a zoxide visit just because we connected to a host.
-		if session, exists := c.lister.FindTmuxSession(name); exists {
-			return model.Connection{Found: true, Session: session}, nil
-		}
-		session := config.Session()
-		path, err := c.home.ExpandPath("~")
-		if err != nil {
-			return model.Connection{}, fmt.Errorf("couldn't expand home for SSH session: %w", err)
-		}
-		session.Path = path
-		return model.Connection{Found: true, New: true, Session: session}, nil
+		return model.Connection{Found: true, Session: config.Session()}, nil
 	}
 	return model.Connection{}, nil
+}
+
+func connectToSSH(c *RealConnector, connection model.Connection, _ model.ConnectOpts) (string, error) {
+	// Run in the current terminal so SSH can read input and manage its TTY.
+	// Pass the destination as one argument, never through a local shell.
+	if _, err := c.shell.CmdWithOutput("ssh", "--", connection.Session.SSHHost); err != nil {
+		return "", fmt.Errorf("failed to connect to SSH host %q: %w", connection.Session.SSHHost, err)
+	}
+	return "", nil
 }

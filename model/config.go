@@ -73,7 +73,7 @@ type (
 		Color string `toml:"color"`
 	}
 
-	// SSHConfig names a local tmux session whose shell connects to Host.
+	// SSHConfig names an SSH destination to connect to in the current terminal.
 	// Host is passed to OpenSSH, which reads keys, ports and proxies from its
 	// own configuration. It is never treated as a local directory.
 	SSHConfig struct {

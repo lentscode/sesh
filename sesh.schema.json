@@ -260,14 +260,14 @@
     },
     "ssh": {
       "type": "array",
-      "description": "SSH hosts to list and connect to in local tmux sessions. SSH options remain in ~/.ssh/config.",
+      "description": "SSH hosts to list and connect to in the current terminal. SSH options remain in ~/.ssh/config.",
       "items": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
             "minLength": 1,
-            "description": "Unique local tmux session name, without dots, colons, control characters, or surrounding whitespace."
+            "description": "Unique display name, without dots, colons, control characters, or surrounding whitespace."
           },
           "host": {
             "type": "string",

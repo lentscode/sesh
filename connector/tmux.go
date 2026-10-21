@@ -31,9 +31,7 @@ func connectToTmux(c *RealConnector, connection model.Connection, opts model.Con
 		if opts.Command != "" {
 			_, _ = c.tmux.SendKeys(connection.Session.Name+":", opts.Command)
 		} else {
-			if _, err := c.startup.Exec(connection.Session); err != nil && connection.Session.Src == "ssh" {
-				return "", fmt.Errorf("failed to start SSH session %q: %w", connection.Session.Name, err)
-			}
+			_, _ = c.startup.Exec(connection.Session)
 		}
 	}
 
