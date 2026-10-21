@@ -24,7 +24,7 @@ func windowConnector(t *testing.T) (*RealConnector, *tmux.MockTmux, *lister.Mock
 	mHome := home.NewMockHome(t)
 
 	c := NewConnector(
-		model.Config{}, mDir, mHome, mLister, nil, nil, mTmux, nil, nil, nil,
+		model.Config{}, mDir, mHome, mLister, nil, nil, mTmux, nil, nil, nil, nil,
 	).(*RealConnector)
 
 	return c, mTmux, mLister, mDir, mHome

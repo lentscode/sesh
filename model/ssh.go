@@ -3,8 +3,8 @@ package model
 import "strings"
 
 // Session keeps the SSH destination separate from Path, which always refers
-// to a local directory. Quote the host as one shell argument because tmux
-// starts SSH by typing the command into the new session's shell.
+// to a local directory. StartupCommand is quoted for display in the preview;
+// connections pass SSHHost directly to SSH as a single argument.
 func (c SSHConfig) Session() SeshSession {
 	return SeshSession{
 		Src:            "ssh",

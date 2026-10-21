@@ -29,11 +29,6 @@ func NewStartup(
 }
 
 func (s *RealStartup) Exec(session model.SeshSession) (string, error) {
-	// An SSH session runs only its SSH command. Local default commands and
-	// windows must not be typed into the remote shell.
-	if session.Src == "ssh" {
-		return s.tmux.SendKeys(session.Name+":", session.StartupCommand)
-	}
 	strategies := []func(*RealStartup, model.SeshSession) (string, error){
 		configStrategy,
 		configWildcardStartupStrategy,
