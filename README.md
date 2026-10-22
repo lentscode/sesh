@@ -835,12 +835,23 @@ sesh connect dev-server   # runs ssh dev in the current terminal
 sesh preview dev-server   # host details, or the live pane when already running
 ```
 
-Each connection starts SSH in the current terminal without creating or attaching
-to a local tmux session. Ending SSH returns to the terminal where you ran Sesh.
+When started from an interactive terminal, Sesh runs SSH there without creating
+or attaching to a local tmux session. Ending SSH returns to that terminal.
 SSH entries do not add paths to zoxide and skip local default startup commands
 and windows. The tmux options `connect --switch`, `--command`, and `--tmuxinator`
 do not affect SSH connections. SSH hosts cannot be used as tmux window targets.
 Listing and previewing host details do not open network connections.
+
+In picker scripts, capture only the selected row and run `sesh connect` afterward:
+
+```sh
+selection=$(sesh list --ssh --icons | fzf-tmux -p 80%,70%)
+sesh connect "$selection"
+```
+
+Do not put `sesh connect` inside `selection=$(...)`. Command substitution captures
+its standard output, including the remote shell's prompt and command output.
+SSH can connect successfully while that output stays hidden in the variable.
 
 Your existing `sesh list --icons` and `sesh preview {}` fzf commands work with
 these entries. Add `^s ssh` to your fzf header and this binding for an SSH filter:
@@ -849,9 +860,8 @@ these entries. Add `^s ssh` to your fzf header and this binding for an SSH filte
 --bind 'ctrl-s:change-prompt(SSH  )+reload(sesh list -s --icons)'
 ```
 
-The source name is `ssh` in `sort_order` and `[icons.ssh]`. Use `--hide-duplicates`
-to hide an SSH entry when its tmux session is already listed. If caching is
-enabled, use `sesh list --no-cache` to see configuration changes immediately.
+The source name is `ssh` in `sort_order` and `[icons.ssh]`. If caching is enabled,
+use `sesh list --no-cache` to see configuration changes immediately.
 
 ### Sorting
 

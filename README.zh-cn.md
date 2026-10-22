@@ -809,7 +809,7 @@ name = "backup"
 host = "alice@backup.example.com"
 ```
 
-`name` 是本地 tmux 会话名称，必须在 SSH 条目中唯一，且不能与配置的会话名称或别名冲突。
+`name` 是选择主机时使用的显示名称，必须在 SSH 条目中唯一，且不能与配置的会话名称或别名冲突。
 名称不能包含点或冒号，例如可使用 `dev-server`。`host` 是 SSH 别名或目标地址。
 端口、密钥文件和跳板机等 SSH 选项仍在 `~/.ssh/config` 中配置。
 例如，`host = "dev"` 会使用现有的 `Host dev` 配置。
@@ -820,14 +820,24 @@ Sesh 使用您安装的 `ssh` 命令连接。
 ```sh
 sesh list                 # 包含 SSH 主机和其他来源
 sesh list -s --icons      # 仅显示 SSH 主机，长选项为 --ssh
-sesh connect dev-server   # 创建本地 tmux 会话并运行 ssh dev
+sesh connect dev-server   # 在当前终端运行 ssh dev
 sesh preview dev-server   # 显示主机信息，已有会话则显示实时窗格
 ```
 
-再次连接会复用同名 tmux 会话。SSH 条目不会向 zoxide 添加路径，也不会运行本地默认启动命令或创建默认窗口。
-与其他来源一样，`connect --command` 会替换新会话的启动命令。
-退出 SSH 后本地 shell 仍然保留；在其中运行 `ssh dev` 即可重连，或关闭 tmux 会话后再次选择该条目。
+在交互式终端中运行 Sesh 时，SSH 会在该终端启动，不会创建或连接本地 tmux 会话。退出 SSH 后返回该终端。
+SSH 条目不会向 zoxide 添加路径，也不会运行本地默认启动命令或创建默认窗口。
+tmux 选项 `connect --switch`、`--command` 和 `--tmuxinator` 不影响 SSH 连接。SSH 主机不能作为 tmux 窗口的目标。
 列出主机或预览主机信息不会发起网络连接。
+
+在选择器脚本中，只捕获选中的行，然后再运行 `sesh connect`：
+
+```sh
+selection=$(sesh list --ssh --icons | fzf-tmux -p 80%,70%)
+sesh connect "$selection"
+```
+
+不要把 `sesh connect` 放在 `selection=$(...)` 内。命令替换会捕获它的标准输出，
+包括远程 shell 的提示符和命令输出。SSH 连接可能已经成功，但这些输出会被存入变量，无法显示在终端中。
 
 现有的 fzf 命令 `sesh list --icons` 和 `sesh preview {}` 可直接使用这些条目。
 在 fzf 标题中添加 `^s ssh`，再添加以下绑定即可筛选 SSH 主机：
@@ -837,7 +847,6 @@ sesh preview dev-server   # 显示主机信息，已有会话则显示实时窗�
 ```
 
 在 `sort_order` 和 `[icons.ssh]` 中使用来源名称 `ssh`。
-`--hide-duplicates` 可在同名 tmux 会话已列出时隐藏 SSH 条目。
 如果启用了缓存，可用 `sesh list --no-cache` 立即查看配置更改。
 
 ### 排序
